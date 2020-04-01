@@ -1,0 +1,172 @@
+#!/usr/bin/env bash
+# vim: set ft=sh
+
+docker_required() {
+    echo ""
+    echo "É necessário permissão de super usuário"
+    sudo true
+
+    # docker
+    if [[ `which docker` == '' ]]; then
+        echo "Docker não está instalado."
+        exit 0
+    fi
+
+    # docker-compose
+    if [[ `which docker-compose` == '' ]]; then
+        echo "Docker-compose não está instalado, ou ele não está na pasta /usr/bin."
+        exit 0
+    fi
+
+    # compilando a maquina
+    echo ""
+    echo "Será iniciado o build da maquina do Orkaholic."
+    echo "Tenha paciência, isso irá demorar um pouco. :)"
+    echo "Vai lá e pega um café, a espera será mais feliz."
+    echo ""
+
+    # env vars
+    docker_env
+}
+
+docker_start() {
+    # start
+    docker_required
+
+    # Baixando as imagens
+    docker-compose pull
+
+    #iniciando as imagens
+    docker_up_containers
+
+    # Configurando o ambiente
+    docker_base
+}
+
+docker_build () {
+    # start
+    docker_required
+
+    # remove todos os containers
+    docker-compose down
+
+    # executa o build
+    sudo docker-compose build
+
+    docker-compose up -d
+    sleep 10
+
+    # configurando o ambiente
+    docker_base
+}
+
+docker_build_force_recreate () {
+    # start
+    docker_required
+
+    # remove todos os containers
+    docker-compose down
+
+    # executa o build
+    sudo docker-compose build
+
+    #configurando o banco de dados
+    docker-compose up -d --force-recreate
+    sleep 10
+
+    # configurando o ambiente
+    docker_base
+}
+
+docker_base() {
+    # Copiando .env
+    cp ./.env.${PLAT_ENV}.example ./.env
+
+    # Install composer
+    bash console composer install
+
+    # Gerando nova Key
+    bash console php artisan key:generate
+
+    # Limpando cache de configuração
+    bash console php artisan config:clear
+
+    # Migrations
+    bash console php artisan migrate:refresh --seed
+
+    # Permissão de escrita
+    cd ..
+    sudo chmod 777 -R workaholic
+
+    declare -i count
+    count=`cat /etc/hosts | grep "173.0.0.2 local.orkaholic.com.br" | wc -l`
+
+    if [ $count -eq 0 ]; then
+        echo "173.0.0.2 local.orkaholic.com.br" | sudo tee -a /etc/hosts
+    fi
+}
+
+docker_env() {
+    # Copiando .env
+    cp ./.platenv.example ./.platenv
+
+    # Exportando
+    bash .platenv
+
+    # Copiando docker-compose
+    cp ./docker-compose.yml.${PLAT_ENV} ./docker-compose.yml
+}
+
+docker_up_containers() {
+    docker-compose start
+}
+
+docker_down_containers() {
+    docker-compose stop
+}
+
+docker_up_containers_with_logs() {
+    docker_up_containers
+    docker-compose logs --tail=50 -f
+}
+
+docker_up_containers_reset_db() {
+    docker_down_containers
+    docker_up_containers
+
+    #up
+    docker_up_containers_with_logs
+}
+
+echo "Seja bem-vindo ao menu de setup."
+echo "Por favor escolha uma das opções abaixo:"
+echo "1 - Deploy com o Docker"
+echo "2 - Recriar containers"
+echo "3 - Iniciar os containers"
+echo "4 - Iniciar os containers com logs"
+echo "5 - Iniciar os containers e resetar o banco de dados"
+echo "6 - Desligar os containers"
+if [ "$1" == "" ]; then
+    echo -n "Digite sua opção: "
+    read -n 1 option
+    echo ""
+else
+    option="$1"
+fi
+
+if [ "$option" == "1" ]; then
+    docker_build
+elif [ "$option" == "2" ]; then
+    docker_build_force_recreate
+elif [ "$option" == "3" ]; then
+    docker_up_containers
+elif [ "$option" == "4" ]; then
+    docker_up_containers_with_logs
+elif [ "$option" == "5" ]; then
+    docker_up_containers_reset_db
+elif [ "$option" == "6" ]; then
+    docker_down_containers
+else
+    echo ""
+    echo ":) Você quase acertou. Agora tente uma opção entre 1 e 7"
+fi
