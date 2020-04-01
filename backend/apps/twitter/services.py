@@ -46,6 +46,9 @@ class Twitter:
     TWITTER_HOST = settings.TWITTER["HOST"]
     TWITTER_API_VERSION = "/1.1/"
 
+    def __init__(self):
+        self.AUTH = self.__auth()
+
     def search(self, params):
         """ :reference: https://developer.twitter.com/en/docs/tweets/search/api-reference/get-search-tweets
             :allowed_param:'q', 'lang', 'locale', 'since_id', 'geocode',
@@ -55,7 +58,7 @@ class Twitter:
         return self.__request(params)
 
     def __request(self, params):
-        auth = self.__auth()
+        auth = self.AUTH
         endpoint = "/search/tweets.json"
         url = self._get_url(endpoint)
 
