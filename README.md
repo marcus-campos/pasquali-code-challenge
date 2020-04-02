@@ -16,7 +16,8 @@ Desenvolver aplicação web para extração de tweets através da TwitterAPI
 * Documentar principais etapas para execução do código como How to run
 
 
-## Configuração de ambiente
+
+# Configuração de ambiente
 Antes de mais nada, [crie um app no twitter](https://medium.com/@marlessonsantana/como-criar-apps-e-obter-os-tokens-necess%C3%A1rios-para-coletar-dados-do-twitter-instagram-linkedin-e-8f36602ea92a), depois de criado, atualize o arquivo `local.env` que está na pasta `backend`, altere os valores das variavies `TWITTER_CONSUMER_KEY` e `TWITTER_CONSUMER_SECRET` e coloque as chaves que você obeteve na criação do app. O arquivo local.env deve ficar semelhante ao próximo exemplo:
 
 ```
