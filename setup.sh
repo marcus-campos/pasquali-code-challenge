@@ -79,6 +79,13 @@ docker_up_containers_with_logs() {
     docker-compose logs --tail=50 -f
 }
 
+print_urls() {
+    echo ""
+    echo "Os setup dos ambientes foi concluído com sucesso!"
+    echo "Frontend:          http://127.0.0.1:3000/"
+    echo "Swagger backend:   http://127.0.0.1:8000/swagger/"
+}
+
 echo "Seja bem-vindo ao menu de setup."
 echo "Por favor escolha uma das opções abaixo:"
 echo "1 - Deploy com o Docker"
@@ -96,10 +103,13 @@ fi
 
 if [ "$option" == "1" ]; then
     docker_build
+    print_urls
 elif [ "$option" == "2" ]; then
     docker_build_force_recreate
+    print_urls
 elif [ "$option" == "3" ]; then
     docker_up_containers
+    print_urls
 elif [ "$option" == "4" ]; then
     docker_up_containers_with_logs
 elif [ "$option" == "5" ]; then

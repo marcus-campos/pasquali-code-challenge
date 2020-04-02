@@ -72,11 +72,15 @@ Neste momento digite a opção `1`.
 Ao final da execução se tudo tiver ocorrido corretamente, você irá ver um texto semelhante a este:
 
 ```
-Successfully built 33aa67631152
+Successfully built 0990a6ab2c24
 Successfully tagged pasquali-code-challenge_page:latest
 Creating network "pasquali-code-challenge_default" with the default driver
-Creating backend  ... done
 Creating frontend ... done
+Creating backend  ... done
+
+Os setup dos ambientes foi concluído com sucesso!
+Frontend:          http://127.0.0.1:3000/
+Swagger backend:   http://127.0.0.1:8000/swagger/
 ```
 
 Agora basta acessar o projeto em seu navegador:
