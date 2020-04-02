@@ -60,6 +60,7 @@ function App() {
       loadCsvData(result.data);
     }
   };
+  
   const fetchTweets = async () => {
     setLoading(true);
     const result = await api.get("/twitter/tweets/?q=" + search + "&count=50");
