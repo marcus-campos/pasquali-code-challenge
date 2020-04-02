@@ -3,14 +3,18 @@ import "./App.css";
 import TweetList from "./components/list";
 import TweetInsight from "./components/insights";
 import api from "./services/http";
-import Button from "@material-ui/core/Button";
-import TextField from "@material-ui/core/TextField";
-import Tooltip from "@material-ui/core/Tooltip";
+import {
+  Button,
+  TextField,
+  Tooltip,
+  CircularProgress
+} from "@material-ui/core";
 import { CSVLink, CSVDownload } from "react-csv";
 
 function App() {
   const [tweets, setTweets] = useState({ statuses: [], insights: [] });
   const [search, setSearch] = useState("from:nasa");
+  const [loading, setLoading] = useState(true);
   const [showTweets, setShowTweets] = useState(true);
   const [csvData, setCsvData] = useState([]);
 
@@ -48,18 +52,21 @@ function App() {
   };
 
   const loadMoreFetchTweets = async params => {
+    setLoading(true);
     const result = await api.get("/twitter/tweets/" + params);
     if (result.status === 200) {
-      await setTweets(result.data);
-      await loadCsvData(result.data);
+      setLoading(false);
+      setTweets(result.data);
+      loadCsvData(result.data);
     }
   };
-
   const fetchTweets = async () => {
+    setLoading(true);
     const result = await api.get("/twitter/tweets/?q=" + search + "&count=50");
     if (result.status === 200) {
-      await setTweets(result.data);
-      await loadCsvData(result.data);
+      setTweets(result.data);
+      setLoading(false);
+      loadCsvData(result.data);
     }
   };
 
@@ -86,21 +93,25 @@ function App() {
           </Button>
         </div>
 
-        <div>
-          {showTweets ? (
-            <TweetList tweets={tweets} />
-          ) : (
-            <TweetInsight tweets={tweets} />
-          )}
-        </div>
+        {loading && <CircularProgress />}
+
+        {!loading && (
+          <div>
+            {showTweets ? (
+              <TweetList tweets={tweets} />
+            ) : (
+              <TweetInsight tweets={tweets} />
+            )}
+          </div>
+        )}
 
         {tweets["statuses"].length > 0 ? (
           <div className="footer">
-            <CSVLink data={csvData} separator={";"} filename={"tweets.csv"}>
-              <Button variant="primary">
-                { "Exportar dados" }
-              </Button>
-            </CSVLink>
+            <Button variant="primary">
+              <CSVLink data={csvData} separator={";"} filename={"tweets.csv"}>
+                {"Exportar dados"}
+              </CSVLink>
+            </Button>
             <Button variant="primary" onClick={() => showInsights()}>
               {showTweets ? "Ver insights" : "Ver tweets"}
             </Button>

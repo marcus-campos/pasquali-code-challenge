@@ -7,15 +7,20 @@ import TableContainer from "@material-ui/core/TableContainer";
 import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
 import Paper from "@material-ui/core/Paper";
+import Grid from "@material-ui/core/Grid";
 
 const useStyles = makeStyles({
-  table: {
-    marginTop: "30px",
-    padding: "10px 0px 10px 0",
-    width: "100%",
+  tableContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    overflowY: 'scroll',
+    minWidth: '36ch',
     maxWidth: "36ch",
-    height: "100%",
-    maxHeight: "36ch"
+    maxHeight: "36ch",
+  },
+  tableWrapper: {
+    width: '100%',
+    margin: '20px 0',
   }
 });
 
@@ -23,29 +28,31 @@ export default function TweetInsight(props) {
   const classes = useStyles();
 
   return (
-    <TableContainer component={Paper}>
-      {Object.keys(props["tweets"]["insights"]).length > 0
+    <TableContainer component={Paper} className={classes.tableContainer}>
+      {Object.keys(props["tweets"]["insights"]).length
         ? Object.keys(props["tweets"]["insights"]).map(value => (
-            <Table
-              className={classes.table}
-            >
-              <TableHead>
-                <TableRow>
-                  <TableCell>{ value }</TableCell>
-                  <TableCell align="right">Total</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                  {
-                      Object.keys(props["tweets"]["insights"][value]).map(deep_value => (
-                        <TableRow>
-                            <TableCell align="left">{deep_value}</TableCell>
-                            <TableCell align="right">{props["tweets"]["insights"][value][deep_value]}</TableCell>
-                        </TableRow>
-                      ))
-                  }
-              </TableBody>
-            </Table>
+            <div className={classes.tableWrapper}>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>{value}</TableCell>
+                    <TableCell align="right">Total</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {Object.keys(props["tweets"]["insights"][value]).map(
+                    deep_value => (
+                      <TableRow>
+                        <TableCell align="left">{deep_value}</TableCell>
+                        <TableCell align="right">
+                          {props["tweets"]["insights"][value][deep_value]}
+                        </TableCell>
+                      </TableRow>
+                    )
+                  )}
+                </TableBody>
+              </Table>
+            </div>
           ))
         : null}
     </TableContainer>
